@@ -1,35 +1,46 @@
 (ns tfa-be.handler
   (:require [compojure.api.sweet :refer :all]
             [ring.util.http-response :refer :all]
-            [schema.core :as s]))
+            [schema.core :as s]
+            [tfa-be.impl :as api-impl]))
 
-(s/defschema Pizza
-  {:name s/Str
-   (s/optional-key :description) s/Str
-   :size (s/enum :L :M :S)
-   :origin {:country (s/enum :FI :PO)
-            :city s/Str}})
+(s/defschema Result
+  {:type (s/enum :success :error :exception)
+   :message s/Str
+   (s/optional-key :data) {s/Any s/Any}})
+
+;(s/defschema Email (s/ #"^..$"))
 
 (def app
   (api
     {:swagger
-     {:ui "/"
+     {:ui "/swagger"
       :spec "/swagger.json"
-      :data {:info {:title "Tfa-be"
-                    :description "Compojure Api example"}
-             :tags [{:name "api", :description "some apis"}]}}}
+      :data {:info {:title "tfa-be"
+                    :description "Two Factor Auth example backend"}
+             :tags [{:name "api", :description "APIs"}]}}}
 
     (context "/api" []
       :tags ["api"]
 
-      (GET "/plus" []
-        :return {:result Long}
-        :query-params [x :- Long, y :- Long]
-        :summary "adds two numbers together"
-        (ok {:result (+ x y)}))
+      (POST "/register" []
+        :return Result
+        :form-params [email :- (describe s/Regex "Email address")
+                      password :- (describe s/Str "Password")]
+        :summary "Registers new user credentials"
+        (api-impl/register email password))
 
-      (POST "/echo" []
-        :return Pizza
-        :body [pizza Pizza]
-        :summary "echoes a Pizza"
-        (ok pizza)))))
+      (POST "/verify-email" []
+        :return Result
+        :form-params [email :- (describe s/Str "Email address")
+                      token :- (describe s/Str "Token received in the email")]
+        :summary "Verifies the registered email"
+        (api-impl/verify-email email token))
+
+      (POST "/enable-2fa" []
+        :return Result
+        :form-params [email :- (describe s/Str "Email address. (Must be already verified)")]
+        :summary "Enables two-factor auth for the user."
+        (api-impl/enable-2fa email)))))
+
+
