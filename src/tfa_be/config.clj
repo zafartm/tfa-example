@@ -1,13 +1,11 @@
 (ns tfa-be.config
   (:require [cprop.core]
-            [cprop.source]
-            [mount.core]))
+            [cprop.source]))
 
-;(defstate env :start (load-config :merge [(args)
-;                                          (cprop.source/from-system-props)
-;                                          (cprop.source/from-env)]))
+(def ^:private env (delay (cprop.core/load-config)))
 
-(mount.core/defstate env :start (cprop.core/load-config))
+
+(defn list-all [] @env)
 
 (defn get-prop [prop-path]
-  (get-in env prop-path))
+  (get-in @env prop-path))

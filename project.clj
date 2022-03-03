@@ -3,12 +3,13 @@
   :dependencies [[org.clojure/clojure "1.10.3"]
                  [metosin/compojure-api "1.1.13"]
                  [org.clojure/tools.logging "1.2.4"]
-                 [mount "0.1.16"]
+                 ;[mount "0.1.16"]
                  [cprop "0.1.19"]
                  [migratus "1.3.6"]
                  [hikari-cp "2.13.0"]
                  [mysql/mysql-connector-java "8.0.28"]
                  [buddy/buddy-hashers "1.8.158"]
+                 [com.taoensso/carmine "3.1.0"]
 
                  ; Use Logback as the main logging implementation:
                  [ch.qos.logback/logback-classic "1.2.10"]

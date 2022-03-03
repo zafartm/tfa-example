@@ -4,6 +4,7 @@
             [tfa-be.config]
             [clojure.string]
             [buddy.hashers]
+            [tfa-be.config :as config]
             [tfa-be.emails :as emails]
             [tfa-be.redis :as redis]
             [tfa-be.db :as db]))
@@ -73,6 +74,6 @@
 
 (defn get-config []
   (do-in-try-catch
-    (success-response "Configurations" tfa-be.config/env)))
+    (success-response "Configurations" (config/list-all))))
 
 

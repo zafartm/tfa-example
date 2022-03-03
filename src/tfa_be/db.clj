@@ -1,13 +1,13 @@
 (ns tfa-be.db
   (:require [tfa-be.config :as conf]
-            [clojure.java.jdbc :as jdbc]))
+            [clojure.java.jdbc :as jdbc]
+            [hikari-cp.core :as hikaricp]))
 
 
-(def mysql-db {:connection-uri (conf/get-prop [:database-url])})
-
+(def ^:private db-conn (delay {:connection-uri (conf/get-prop [:database-url])}))
 
 (defn query []
-  (jdbc/query mysql-db "SELECT * FROM users"))
+  (jdbc/query @db-conn "SELECT * FROM users"))
 
 
 

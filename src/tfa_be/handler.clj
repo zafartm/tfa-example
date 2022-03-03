@@ -2,10 +2,7 @@
   (:require [compojure.api.sweet :refer :all]
             [ring.util.http-response :refer :all]
             [schema.core :as s]
-            [tfa-be.impl :as api-impl]
-            [tfa-be.config :refer [env]]))
-
-(mount.core/start) ;; put here as this namespace is the entrypoint of the app
+            [tfa-be.impl :as api-impl]))
 
 (s/defschema Result
   {:type (s/enum :success :error :exception)
