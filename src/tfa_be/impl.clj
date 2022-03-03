@@ -1,5 +1,13 @@
 (ns tfa-be.impl
-  (:require [ring.util.http-response :as http]))
+  (:require [ring.util.http-response :as http]
+            [clojure.tools.logging]
+            [tfa-be.config]
+            [clojure.string]
+            [buddy.hashers]
+            [tfa-be.emails :as emails]
+            [tfa-be.redis :as redis]
+            [tfa-be.db :as db]))
+
 
 (defn- success-response [message & [data]]
   {:pre [(or (nil? data) (map? data))]}
@@ -31,15 +39,40 @@
 
 
 (defn register [email password]
+  {:pre [(not (clojure.string/blank? email))
+         (not (clojure.string/blank? password))]}
+
   (do-in-try-catch
-    (success-response "Not coded yet")))
+    (let [email (clojure.string/lower-case email)
+          pass-hash (buddy.hashers/derive password)
+          verification-token "??????"] ;; TODO
+      (redis/save-token {:email email :pass_hash pass-hash :token verification-token}) ;; TODO
+      (emails/send-template-email email "verify-account.html" {:token verification-token}) ;; TODO
+      (success-response "Account verification email is sent." {:email email}))))
 
 (defn verify-email [email token]
   (do-in-try-catch
-    (success-response "Not coded yet")))
+    (let [email (clojure.string/lower-case email)
+          found (redis/get-token email)] ;; TODO
+      (cond
+        (nil? found)
+        (error-response "Verification is failed!" {:email email :token token})
+
+        (not= token (:token found))
+        (error-response "Verification is failed!" {:email email :token token})
+
+        :else
+        (do (db/save-new-user email (:pass_hash found)) ;; TODO
+            (success-response "Registration is completed." {:email email}))))))
+
 
 (defn enable-2fa [email]
   (do-in-try-catch
     (success-response "Not coded yet")))
+
+
+(defn get-config []
+  (do-in-try-catch
+    (success-response "Configurations" tfa-be.config/env)))
 
 
