@@ -12,6 +12,7 @@
                  [com.taoensso/carmine "3.1.0"]
                  [selmer "1.12.50"]
                  [com.sun.mail/javax.mail "1.6.2"]
+                 [one-time "0.7.0"]
 
                  ; Use Logback as the main logging implementation:
                  [ch.qos.logback/logback-classic "1.2.10"]

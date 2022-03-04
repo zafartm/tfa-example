@@ -7,7 +7,8 @@
             [tfa-be.config :as config]
             [tfa-be.emails :as emails]
             [tfa-be.redis :as redis]
-            [tfa-be.db :as db]))
+            [tfa-be.db :as db]
+            [one-time.core :as otp]))
 
 
 (defn- success-response [message & [data]]
@@ -47,9 +48,10 @@
   (do-in-try-catch
     (let [email (clojure.string/lower-case email)
           pass-hash (buddy.hashers/derive password)
-          verification-token "??????"] ;; TODO
-      (redis/save-token {:name name :email email :pass_hash pass-hash :token verification-token})
-      (emails/send-template-email email name "Verify your account" "account-verification.html" {:name name :token verification-token}) ;; TODO
+          totp-secret-key (otp/generate-secret-key)
+          verification-token (otp/get-hotp-token totp-secret-key (System/currentTimeMillis))]
+      (redis/save-token {:name name :email email :pass_hash pass-hash :totp_secret totp-secret-key :token verification-token})
+      (emails/send-template-email email name "Verify your account" "account-verification.html" {:name name :token verification-token})
       (success-response "An account verification email is sent." {:email email}))))
 
 (defn verify-email [email token]
@@ -64,11 +66,21 @@
         (error-response "Verification is failed!" {:email email :token token})
 
         :else
-        (do (db/save-new-user name email (:pass_hash found))
+        (do (db/save-new-user (:name found) email (:pass_hash found) (:totp_secret found))
             (success-response "Registration is completed." {:email email}))))))
 
 
-(defn enable-2fa [email]
+(defn enable-2fa [email] ;; TODO
+  (do-in-try-catch
+    (success-response "Not coded yet")))
+
+
+(defn generat-qr-image [email] ;; TODO
+  (do-in-try-catch
+    (success-response "Not coded yet")))
+
+
+(defn verify-2fa-code [email code] ;; TODO
   (do-in-try-catch
     (success-response "Not coded yet")))
 

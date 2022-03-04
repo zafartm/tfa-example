@@ -34,7 +34,7 @@
       (POST "/verify-email" []
         :return Result
         :form-params [email :- (describe s/Str "Email address")
-                      token :- (describe s/Str "Token received in the email")]
+                      token :- (describe s/Int "Token received in the email")]
         :summary "Verifies the registered email"
         (api-impl/verify-email email token))
 

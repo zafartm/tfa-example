@@ -26,7 +26,7 @@
     (jdbc/query conn "SELECT * FROM users")))
 
 
-(defn save-new-user [name email password-hash]
+(defn save-new-user [name email password-hash totp-secret]
   (jdbc/with-db-connection
     [conn {:datasource @datasource}]
-    (jdbc/insert! conn :users {:name name :email email :password_hash password-hash})))
+    (jdbc/insert! conn :users {:full_name name :email email :password_hash password-hash :totp_secret totp-secret})))
