@@ -10,6 +10,8 @@
                  [mysql/mysql-connector-java "8.0.28"]
                  [buddy/buddy-hashers "1.8.158"]
                  [com.taoensso/carmine "3.1.0"]
+                 [selmer "1.12.50"]
+                 [com.sun.mail/javax.mail "1.6.2"]
 
                  ; Use Logback as the main logging implementation:
                  [ch.qos.logback/logback-classic "1.2.10"]

@@ -6,9 +6,27 @@
 
 (def ^:private db-conn (delay {:connection-uri (conf/get-prop [:database-url])}))
 
-(defn query []
+(def ^:private datasource
+  (delay (hikaricp/make-datasource {:jdbc-url (conf/get-prop [:database-url])})))
+
+(comment
+  "Plain connection without pooling"
   (jdbc/query @db-conn "SELECT * FROM users"))
 
+(comment
+  "Pooled connection using hikari-cp pool"
+  (jdbc/with-db-connection
+    [conn {:datasource @datasource}]
+    (jdbc/query conn "SELECT * FROM users")))
+
+(comment
+  "Pooled connection and db transaction"
+  (jdbc/with-db-transaction
+    [conn {:datasource @datasource} {:read-only? true}]
+    (jdbc/query conn "SELECT * FROM users")))
 
 
-(defn save-new-user [email password-hash])
+(defn save-new-user [name email password-hash]
+  (jdbc/with-db-connection
+    [conn {:datasource @datasource}]
+    (jdbc/insert! conn :users {:name name :email email :password_hash password-hash})))

@@ -39,22 +39,23 @@
                  :message (.getMessage ex#)}))))
 
 
-(defn register [email password]
-  {:pre [(not (clojure.string/blank? email))
+(defn register [name email password]
+  {:pre [(not (clojure.string/blank? name))
+         (not (clojure.string/blank? email))
          (not (clojure.string/blank? password))]}
 
   (do-in-try-catch
     (let [email (clojure.string/lower-case email)
           pass-hash (buddy.hashers/derive password)
           verification-token "??????"] ;; TODO
-      (redis/save-token {:email email :pass_hash pass-hash :token verification-token}) ;; TODO
-      (emails/send-template-email email "verify-account.html" {:token verification-token}) ;; TODO
-      (success-response "Account verification email is sent." {:email email}))))
+      (redis/save-token {:name name :email email :pass_hash pass-hash :token verification-token})
+      (emails/send-template-email email name "Verify your account" "account-verification.html" {:name name :token verification-token}) ;; TODO
+      (success-response "An account verification email is sent." {:email email}))))
 
 (defn verify-email [email token]
   (do-in-try-catch
     (let [email (clojure.string/lower-case email)
-          found (redis/get-token email)] ;; TODO
+          found (redis/get-token email)]
       (cond
         (nil? found)
         (error-response "Verification is failed!" {:email email :token token})
@@ -63,7 +64,7 @@
         (error-response "Verification is failed!" {:email email :token token})
 
         :else
-        (do (db/save-new-user email (:pass_hash found)) ;; TODO
+        (do (db/save-new-user name email (:pass_hash found))
             (success-response "Registration is completed." {:email email}))))))
 
 

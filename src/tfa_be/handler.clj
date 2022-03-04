@@ -25,10 +25,11 @@
 
       (POST "/register" []
         :return Result
-        :form-params [email :- (describe s/Regex "Email address")
+        :form-params [name :- (describe s/Str "Full name")
+                      email :- (describe s/Str "Email address")
                       password :- (describe s/Str "Password")]
         :summary "Registers new user credentials"
-        (api-impl/register email password))
+        (api-impl/register name email password))
 
       (POST "/verify-email" []
         :return Result
