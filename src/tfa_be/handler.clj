@@ -38,11 +38,27 @@
         :summary "Verifies the registered email"
         (api-impl/verify-email email token))
 
+      (POST "/verify-login" []
+        :return Result
+        :form-params [email :- (describe s/Str "Email address")
+                      password :- (describe s/Str "Password")
+                      {auth_code :- (describe s/Int "(Optional) Code from Authenticator") nil}]
+        :summary "Verifies login credentials."
+        (api-impl/verify-login email password auth_code))
+
       (POST "/enable-2fa" []
         :return Result
-        :form-params [email :- (describe s/Str "Email address. (Must be already verified)")]
+        :form-params [email :- (describe s/Str "Email address")
+                      password :- (describe s/Str "Password")
+                      auth_code :- (describe s/Int "Code from Authenticator")]
         :summary "Enables two-factor auth for the user."
-        (api-impl/enable-2fa email))
+        (api-impl/enable-2fa email password auth_code))
+
+      (GET "/totp-code" []
+        :query-params [email :- (describe s/Str "Email address. (Must be already verified)")
+                       password :- (describe s/Str "Password")]
+        :summary "Returns QR image for Authenticator config."
+        (api-impl/generate-qr-response email password))
 
       (GET "/config" []
         :return Result
