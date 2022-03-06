@@ -2,6 +2,7 @@
   (:require [compojure.api.sweet :refer :all]
             [ring.util.http-response :refer :all]
             [schema.core :as s]
+            [compojure.route]
             [tfa-be.impl :as api-impl]))
 
 (s/defschema Result
@@ -11,7 +12,7 @@
 
 ;(s/defschema Email (s/ #"^..$"))
 
-(def app
+(def api-routes
   (api
     {:swagger
      {:ui "/swagger"
@@ -66,3 +67,8 @@
         (api-impl/get-config)))))
 
 
+(def app
+  (routes
+    #'api-routes
+    (compojure.route/resources "/")
+    (compojure.route/not-found "Not found")))

@@ -1,0 +1,17 @@
+div.section {
+    border-bottom: 1px dotted grey;
+    margin: 10px;
+    padding: 10px;
+}
+
+div.hidden {
+    visibility: hidden;
+}
+
+p.error_message {
+    color: red;
+}
+
+p.success_message {
+    color: green;
+}
