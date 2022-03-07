@@ -1,5 +1,5 @@
-(ns tfa-be.redis
-  (:require [tfa-be.config :as config]
+(ns tfa-example.redis
+  (:require [tfa-example.config :as config]
             [taoensso.carmine :as carmine]))
 
 

@@ -1,14 +1,14 @@
-(ns tfa-be.impl
+(ns tfa-example.api_impl
   (:require [ring.util.http-response :as http]
             [ring.util.response :as resp]
             [clojure.tools.logging]
-            [tfa-be.config]
+            [tfa-example.config]
             [clojure.string]
             [buddy.hashers]
-            [tfa-be.config :as config]
-            [tfa-be.emails :as emails]
-            [tfa-be.redis :as redis]
-            [tfa-be.db :as db]
+            [tfa-example.config :as config]
+            [tfa-example.emails :as emails]
+            [tfa-example.redis :as redis]
+            [tfa-example.db :as db]
             [one-time.core :as otp]
             [one-time.qrgen :as qrgen])
   (:import (java.io ByteArrayOutputStream)))

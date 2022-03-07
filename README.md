@@ -1,6 +1,6 @@
-# tfa-be
+# tfa-example
 
-FIXME
+Two factor Auths (2FA) example application
 
 ## Usage
 

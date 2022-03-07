@@ -1,9 +1,8 @@
-(ns tfa-be.handler
+(ns tfa-example.api
   (:require [compojure.api.sweet :refer :all]
             [ring.util.http-response :refer :all]
             [schema.core :as s]
-            [compojure.route]
-            [tfa-be.impl :as api-impl]))
+            [tfa-example.api_impl :as api-impl]))
 
 (s/defschema Result
   {:type (s/enum :success :error :exception)
@@ -17,8 +16,7 @@
     {:swagger
      {:ui "/swagger"
       :spec "/swagger.json"
-      :data {:info {:title "tfa-be"
-                    :description "Two Factor Auth example backend"}
+      :data {:info {:title "2FA example API"}
              :tags [{:name "api", :description "APIs"}]}}}
 
     (context "/api" []
@@ -66,9 +64,3 @@
         :summary "Returns list of configurations (env, conf, system.properties etc)"
         (api-impl/get-config)))))
 
-
-(def app
-  (routes
-    #'api-routes
-    (compojure.route/resources "/")
-    (compojure.route/not-found "Not found")))

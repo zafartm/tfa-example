@@ -1,4 +1,4 @@
-(ns tfa-be.config
+(ns tfa-example.config
   (:require [cprop.core]
             [cprop.source]))
 

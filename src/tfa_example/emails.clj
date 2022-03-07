@@ -1,8 +1,8 @@
-(ns tfa-be.emails
-  (:require [tfa-be.config :as conf]
+(ns tfa-example.emails
+  (:require [tfa-example.config :as conf]
             [clojure.java.io :as io]
             [selmer.parser :as parser]
-            [tfa-be.config :as conf])
+            [tfa-example.config :as conf])
   (:import (java.util Properties)
            (javax.mail Session Transport Address Authenticator PasswordAuthentication)
            (javax.mail.internet MimeMessage MimeMessage$RecipientType InternetAddress MimeMultipart MimeBodyPart)))

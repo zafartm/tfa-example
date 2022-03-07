@@ -1,5 +1,5 @@
-(ns tfa-be.db
-  (:require [tfa-be.config :as conf]
+(ns tfa-example.db
+  (:require [tfa-example.config :as conf]
             [clojure.java.jdbc :as jdbc]
             [hikari-cp.core :as hikaricp]))
 
