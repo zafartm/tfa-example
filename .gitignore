@@ -4,3 +4,9 @@
 target
 config.edn
 smtp.properties
+.prod*
+.calva
+.clj-kondo
+.lsp
+
+

@@ -1,8 +1,7 @@
 (ns tfa-example.api_impl
   (:require [ring.util.http-response :as http]
-            [ring.util.response :as resp]
+            [ring.util.codec]
             [clojure.tools.logging]
-            [tfa-example.config]
             [clojure.string]
             [buddy.hashers]
             [tfa-example.config :as config]
@@ -144,5 +143,9 @@
 (defn get-config []
   (do-in-try-catch
     (success-response "Configurations" (config/list-all))))
+
+(comment 
+  (config/list-all)
+  (config/get-prop [:database-url]))
 
 

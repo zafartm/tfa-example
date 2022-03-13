@@ -63,7 +63,7 @@
              :db            {:connection-uri ~(get (System/getenv) "DATABASE_URL")}}
 
 
-  :profiles {:dev {:jvm-opts     ["-Dconf=/home/owner/Webtalk/tmp/tfa-example/config.edn"]
+  :profiles {:dev {:jvm-opts     ["-Dconf=./config.edn"]
                    :dependencies [[javax.servlet/javax.servlet-api "3.1.0"]]
                    :plugins      [[lein-ring "0.12.5"]
                                   [migratus-lein "0.7.3"]]}})
