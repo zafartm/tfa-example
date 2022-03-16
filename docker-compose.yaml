@@ -29,18 +29,20 @@ services:
       - 3300:8080
 
   dev-server:
+    depends_on:
+      - mysql-server
+      - redis-server
     image: clojure:lein-alpine
     volumes:
       - ./:/app
       - tmp_data:/tmp
     working_dir: /app
     ports:
-      - "3001:3001"
-      - "7001:7001"
+      - "3000:3000"
+      - "7000:7000"
     command: ["lein", "ring", "server-headless"]
     user: "1000:1000"
     environment:
-#      - LEIN_ROOT=1
       - HOME=/tmp
       - LEIN_JVM_OPTS=-Duser.home=/tmp
       - DATABASE_URL=jdbc:mysql://mysql-server/tfa_db?user=tfa_user&password=secret

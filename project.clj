@@ -5,7 +5,7 @@
                  [org.clojure/tools.logging "1.2.4"]
                  ;[mount "0.1.16"]
                  [cprop "0.1.19"]
-                 [migratus "1.3.6"]
+                 [migratus "1.2.8"]
                  [hikari-cp "2.13.0"]
                  [mysql/mysql-connector-java "8.0.28"]
                  [buddy/buddy-hashers "1.8.158"]
@@ -52,9 +52,9 @@
   :jvm-opts ["-Dclojure.tools.logging.factory=clojure.tools.logging.impl/jul-factory"]
 
   :ring {:handler tfa-example.handler/app
-         :port    3001
-         :nrepl   {:port   7001
-                   :host   "127.0.0.1"
+         :port    3000
+         :nrepl   {:port   7000
+                   ;:host   "127.0.0.1"
                    :start? true}}
   :uberjar-name "server.jar"
 

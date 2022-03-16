@@ -1,5 +1,5 @@
-{:database-url "jdbc:mysql:///tfa_db?user=<user>&password=<password>"
- :redis-uri    "redis://127.0.0.1"
+{:database-url "jdbc:mysql://mysql-server/tfa_db?user=tfa_user&password=secret"
+ :redis-uri    "redis://redis-server"
  :emails       {:smtp_properties "smtp.properties"
                 :from_email      "noreply@tfa.example"
                 :from_name       "2FA Example Mailer"}}
