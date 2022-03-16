@@ -99,17 +99,19 @@
 (defn generate-qr-response [email password]
   (do-in-try-catch
     (if-some [user-info (db/find-by-email email)]
-      (let [totp-secret (:totp_secret user-info)
-            ^ByteArrayOutputStream qr-stream (qrgen/totp-stream {:label     "Testing 2FA"
-                                                                 :user       email
-                                                                 :secret     totp-secret
-                                                                 :image-size 400
-                                                                 :image-type :PNG})
-            _ (.flush qr-stream)
-            byte-array (.toByteArray qr-stream)
-            base64-encoded (ring.util.codec/base64-encode byte-array)]
-        (success-response "Base64 encoded image data."
-                          {:img_src (str "data:image/png;base64, " base64-encoded)}))
+      (if (false? (check-password? user-info password))
+        (error-response "Invalid password!" {:email email})
+        (let [totp-secret (:totp_secret user-info)
+              ^ByteArrayOutputStream qr-stream (qrgen/totp-stream {:label     "Testing 2FA"
+                                                                   :user       email
+                                                                   :secret     totp-secret
+                                                                   :image-size 400
+                                                                   :image-type :PNG})
+              _ (.flush qr-stream)
+              byte-array (.toByteArray qr-stream)
+              base64-encoded (ring.util.codec/base64-encode byte-array)]
+          (success-response "Base64 encoded image data."
+                            {:img_src (str "data:image/png;base64, " base64-encoded)})))
       (error-response "User not found!" {:email email}))))
 
 
