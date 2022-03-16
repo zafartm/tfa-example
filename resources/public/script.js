@@ -1,5 +1,35 @@
 $(document).ready(function(){
 
+    function showError(text, object) {
+        if(object) {
+            var html = '<p>' + text + '</p>';
+            for (k in object) {
+                html = html + '<li>' + object[k] + ": " + k + '</li>';
+            }
+            $("#message").html(html);
+        } else {
+            $("#message").text(text);
+        }
+        $("#message").toggleClass("error_message", true);
+        $("#message").toggleClass("success_message", false);
+    };
+
+    function showSuccess(text) {
+        $("#message").text(text);
+        $("#message").toggleClass("error_message", false);
+        $("#message").toggleClass("success_message", true);
+    };
+
+    $(document).ajaxError(function(event,xhr,options,exc){
+//      alert("An error occurred!");
+//      console.log(event);
+//      console.log(xhr);
+//      console.log(options);
+//      console.log(exc);
+      console.log(xhr.responseJSON);
+      showError(xhr.statusText, xhr.responseJSON.errors)
+    });
+
     $("#save_button1").click(function(){
         var email = $("#email").val();
         var password = $("#password").val();
@@ -26,13 +56,9 @@ $(document).ready(function(){
 
             function(data, status){
                 if("success" == data.type) {
-                    $("#message").text("Login credentials are valid.");
-                    $("#message").toggleClass("error_message", false);
-                    $("#message").toggleClass("success_message", true);
+                    showSuccess("Login credentials are valid.");
                 } else {
-                    $("#message").text(data.message);
-                    $("#message").toggleClass("error_message", true);
-                    $("#message").toggleClass("success_message", false);
+                    showError(data.message);
                 }
             }
         );
@@ -40,9 +66,10 @@ $(document).ready(function(){
 
 
     $("#load_button").click(function(){
+        $("#qr_img").prop("src", "");
+        $("#qr_div").toggleClass("hidden", true);
         $.get(
             "/api/totp-code",
-
             {
                 email: $("#email").val(),
                 password: $("#password").val()
@@ -52,13 +79,9 @@ $(document).ready(function(){
                 if("success" == data.type) {
                     $("#qr_img").prop("src", data.data.img_src);
                     $("#qr_div").removeClass("hidden");
-                    $("#message").text("QR code is loaded");
-                    $("#message").toggleClass("error_message", false);
-                    $("#message").toggleClass("success_message", true);
+                    showSuccess("QR code is loaded");
                 } else {
-                    $("#message").text(data.message);
-                    $("#message").toggleClass("error_message", true);
-                    $("#message").toggleClass("success_message", false);
+                    showError(data.message);
                 }
             }
         );
@@ -69,13 +92,19 @@ $(document).ready(function(){
         $.post(
             "/api/enable-2fa",
 
-            {
-                email: $("#email").val(),
-                password: $("#password").val(),
-                auth_code: $("#auth_code").val()
-            },
+            $("#auth_code").val()=="" ?
+                {
+                    email: $("#email").val(),
+                    password: $("#password").val()
+                } :
+                {
+                    email: $("#email").val(),
+                    password: $("#password").val(),
+                    auth_code: $("#auth_code").val()
+                },
 
             function(data, status){
+//                console.log(status);
                 if("success" == data.type) {
                     $("#message").text("2FA is enabled for user: " + data.data.email);
                     $("#message").toggleClass("error_message", false);
