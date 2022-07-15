@@ -1,0 +1,42 @@
+version: "3.9"
+
+volumes:
+  mysql-data:
+    name: tfa-mysql-data
+
+networks:
+  tfa-servers:
+    name: tfa-servers
+
+services:
+  redis-server:
+    image: redis:3
+    # ports:
+    #   - "6379:6379"
+    networks:
+      - tfa-servers
+    restart: unless-stopped
+
+  mysql-server:
+    image: mysql:5.7
+    # ports:
+    #   - "3306:3306"
+    networks:
+      - tfa-servers
+    restart: unless-stopped
+    environment:
+      - MYSQL_DATABASE=tfa_db
+      - MYSQL_USER=tfa_user
+      - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=goodroot
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command: --character_set_server=utf8mb4
+
+  adminer:
+    image: adminer:latest
+    ports:
+      - 3300:8080
+    networks:
+      - tfa-servers
+    restart: unless-stopped

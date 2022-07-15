@@ -1,45 +1,26 @@
 version: "3.9"
 
 volumes:
-  mysql-data: {}
-  tmp-data: {}
+  tmp-files:
+    name: tfa-tmp-files
+
+networks:
+  tfa-servers:
+    name: tfa-servers
+    external: true
 
 services:
-  redis-server:
-    image: redis:3
-    # ports:
-    #   - "6379:6379"
-
-  mysql-server:
-    image: mysql:5.7
-    # ports:
-    #   - "3306:3306"
-    environment:
-      - MYSQL_DATABASE=tfa_db
-      - MYSQL_USER=tfa_user
-      - MYSQL_PASSWORD=secret
-      - MYSQL_ROOT_PASSWORD=goodroot
-    volumes:
-      - mysql-data:/var/lib/mysql
-    command: --character_set_server=utf8mb4
-
-  adminer:
-    image: adminer:latest
-    ports:
-      - 3300:8080
-
   dev-server:
-    depends_on:
-      - mysql-server
-      - redis-server
     image: clojure:lein-alpine
     volumes:
       - ./:/app
-      - tmp-data:/tmp
+      - tmp-files:/tmp
     working_dir: /app
     ports:
       - 3001:3001
       - 7001:7001
+    networks:
+      - tfa-servers
     command: "lein do migratus, ring server-headless"
     user: "1000:1000"
     environment:
