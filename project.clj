@@ -52,8 +52,8 @@
   :jvm-opts ["-Dclojure.tools.logging.factory=clojure.tools.logging.impl/jul-factory"]
 
   :ring {:handler tfa-example.handler/app
-         :port    3000
-         :nrepl   {:port   7000
+         :port    3001
+         :nrepl   {:port   7001
                    ;:host   "127.0.0.1"
                    :start? true}}
   :uberjar-name "server.jar"

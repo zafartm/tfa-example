@@ -1,8 +1,8 @@
 version: "3.9"
 
 volumes:
-  mysql_data: {}
-  tmp_data: {}
+  mysql-data: {}
+  tmp-data: {}
 
 services:
   redis-server:
@@ -20,7 +20,7 @@ services:
       - MYSQL_PASSWORD=secret
       - MYSQL_ROOT_PASSWORD=goodroot
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
     command: --character_set_server=utf8mb4
 
   adminer:
@@ -35,12 +35,12 @@ services:
     image: clojure:lein-alpine
     volumes:
       - ./:/app
-      - tmp_data:/tmp
+      - tmp-data:/tmp
     working_dir: /app
     ports:
-      - "3000:3000"
-      - "7000:7000"
-    command: ["lein", "ring", "server-headless"]
+      - 3001:3001
+      - 7001:7001
+    command: "lein do migratus, ring server-headless"
     user: "1000:1000"
     environment:
       - HOME=/tmp
