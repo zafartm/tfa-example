@@ -2,4 +2,6 @@
  :redis-uri    "redis://redis-server"
  :emails       {:smtp_properties "smtp.properties"
                 :from_email      "noreply@tfa.example"
-                :from_name       "2FA Example Mailer"}}
+                :from_name       "2FA Example Mailer"}
+ :stripe       {:secret-key      ""
+                :publishable-key ""}}

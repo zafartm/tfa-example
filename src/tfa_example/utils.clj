@@ -1,6 +1,8 @@
 (ns tfa-example.utils
   (:require [buddy.core.codecs]
-            [buddy.core.bytes])
+            [buddy.core.bytes]
+            [clojure.data.json]
+            [clojure.string])
   (:import (java.nio ByteBuffer)
            (java.util UUID)))
 
@@ -32,3 +34,10 @@
     {:uuid (.toString uuid)
      :hex  hex
      :b64u b64u}))
+
+
+(defn json-to-clojure
+  "Converts a Json string to a clojure data structure. Returns nil for blank string."
+  [json-str]
+  (when (not (clojure.string/blank? json-str))
+    (clojure.data.json/read-str json-str :key-fn clojure.core/keyword)))
