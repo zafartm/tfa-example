@@ -1,12 +1,15 @@
 (ns tfa-example.redis
   (:require [tfa-example.config :as config]
-            [taoensso.carmine :as carmine]))
+            [taoensso.carmine :as carmine]
+            [taoensso.carmine.ring :as carmine-ring]))
 
 
 (defn connection-opts []
   {:spec {:uri (config/get-prop [:redis-uri])
           :db 1}
    :pool {}})
+
+(def ring-session-store (delay (carmine-ring/carmine-store (connection-opts))))
 
 
 (defn save-token [data]

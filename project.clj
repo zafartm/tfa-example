@@ -1,6 +1,7 @@
 (defproject tfa-example "0.1.0-SNAPSHOT"
   :description "Two factor Auths (2FA) Example"
   :dependencies [[org.clojure/clojure "1.10.3"]
+                 [ring/ring-core "1.9.5"]
                  [metosin/compojure-api "1.1.13"]
                  [org.clojure/tools.logging "1.2.4"]
                  ;[mount "0.1.16"]
@@ -9,6 +10,7 @@
                  [hikari-cp "2.13.0"]
                  [mysql/mysql-connector-java "8.0.28"]
                  [buddy/buddy-hashers "1.8.158"]
+                 [buddy/buddy-auth "3.0.323"]
                  [com.taoensso/carmine "3.1.0"]
                  [selmer "1.12.50"]
                  [com.sun.mail/javax.mail "1.6.2"]

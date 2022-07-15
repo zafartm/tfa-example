@@ -146,9 +146,12 @@
         (success-response "Login is successful" (select-keys user-info [:id :full_name :email]))))))
 
 
-(defn- assoc-session-info [result])
+(defn- assoc-session-info [result]
+  (let [user-info (get-in result [:body :data])]
+    (assoc result :session {:identity user-info})))
 
-(defn- clear-session-info [result])
+(defn- clear-session-info [result]
+  (assoc result :session {}))
 
 (defn login-session [email password auth-code]
   (do-in-try-catch
@@ -156,6 +159,11 @@
       (if (= "success" (get-in verification-result [:body :type]))
         (assoc-session-info verification-result)
         (clear-session-info verification-result)))))
+
+(defn logout-session []
+  (do-in-try-catch
+    (-> (success-response "Logout is successful!")
+        (clear-session-info))))
 
 (defn check-session [userinfo]
   (do-in-try-catch

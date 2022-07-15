@@ -2,6 +2,8 @@
   (:require [compojure.api.sweet :refer :all]
             [compojure.api.meta :refer [restructure-param]]
             [ring.util.http-response :refer :all]
+            [buddy.auth :refer [authenticated?]]
+            [buddy.auth.accessrules :refer [restrict]]
             [schema.core :as s]
             [tfa-example.api-impl :as api-impl]))
 
@@ -22,7 +24,24 @@
 
 (defmethod restructure-param :current-uid
   [_ binding acc]
-  (update-in acc [:letks] into [binding `(some-> ~'+compojure-api-request+ :identity :id str Long/valueOf)]))
+  (update-in acc [:letks] into [binding `(some-> ~'+compojure-api-request+ :identity :id)]))
+
+
+(defn access-error [_ _]
+  (unauthorized {:type "error"
+                 :message "Authorization is failed!"}))
+
+(defn wrap-restricted [handler rule]
+  (restrict handler {:handler  rule
+                     :on-error access-error}))
+
+(defmethod restructure-param :auth-rules
+  [_ rule acc]
+  (update-in acc [:middleware] conj [wrap-restricted rule]))
+
+(defn is-logged-in?
+  [req]
+  (authenticated? req))
 
 
 (s/defschema Result
@@ -74,10 +93,17 @@
         :summary "Verifies login credentials. Then creates a cookie based auth session"
         (api-impl/login-session email password auth_code))
 
-      (GET "/session" []
+      (POST "/logout" []
         :return Result
+        :auth-rules is-logged-in?
+        :summary "Removes auth session"
+        (api-impl/logout-session))
+
+      (GET "/session" []
+        ;:return Result
         :summary "Checks if cookie based auth session is valid."
         :current-user userinfo
+        :current-request req
         (api-impl/check-session userinfo))
 
       (POST "/enable-2fa" []
@@ -97,12 +123,6 @@
       (GET "/config" []
         :return Result
         :summary "Returns list of configurations (env, conf, system.properties etc)"
-        (api-impl/get-config))
+        (api-impl/get-config)))))
 
-
-      (context "/stripe" []
-        :tags ["Stripe"]
-
-        (POST "/checkout" []
-          :summary "Creates a checkout session")))))
 
