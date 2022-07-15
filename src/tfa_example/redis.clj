@@ -21,3 +21,8 @@
   (let [key (str "vtokens:" email)]
     (carmine/wcar (connection-opts) (carmine/get key))))
 
+
+(defn delete-token [email]
+  (let [key (str "vtokens:" email)]
+    (carmine/wcar (connection-opts) (carmine/del key))))
+

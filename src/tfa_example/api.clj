@@ -1,8 +1,29 @@
 (ns tfa-example.api
   (:require [compojure.api.sweet :refer :all]
+            [compojure.api.meta :refer [restructure-param]]
             [ring.util.http-response :refer :all]
             [schema.core :as s]
-            [tfa-example.api_impl :as api-impl]))
+            [tfa-example.api-impl :as api-impl]))
+
+
+(defmethod restructure-param :current-request
+  [_ binding acc]
+  (update-in acc [:letks] into [binding `~'+compojure-api-request+]))
+
+
+(defmethod restructure-param :current-session
+  [_ binding acc]
+  (update-in acc [:letks] into [binding `(-> ~'+compojure-api-request+ :session)]))
+
+
+(defmethod restructure-param :current-user
+  [_ binding acc]
+  (update-in acc [:letks] into [binding `(:identity ~'+compojure-api-request+)]))
+
+(defmethod restructure-param :current-uid
+  [_ binding acc]
+  (update-in acc [:letks] into [binding `(some-> ~'+compojure-api-request+ :identity :id str Long/valueOf)]))
+
 
 (s/defschema Result
   {:type (s/enum :success :error :exception)
@@ -45,6 +66,20 @@
         :summary "Verifies login credentials."
         (api-impl/verify-login email password auth_code))
 
+      (POST "/login" []
+        :return Result
+        :form-params [email :- (describe s/Str "Email address")
+                      password :- (describe s/Str "Password")
+                      {auth_code :- (describe s/Int "(Optional) Code from Authenticator") nil}]
+        :summary "Verifies login credentials. Then creates a cookie based auth session"
+        (api-impl/login-session email password auth_code))
+
+      (GET "/session" []
+        :return Result
+        :summary "Checks if cookie based auth session is valid."
+        :current-user userinfo
+        (api-impl/check-session userinfo))
+
       (POST "/enable-2fa" []
         :return Result
         :form-params [email :- (describe s/Str "Email address")
@@ -62,5 +97,12 @@
       (GET "/config" []
         :return Result
         :summary "Returns list of configurations (env, conf, system.properties etc)"
-        (api-impl/get-config)))))
+        (api-impl/get-config))
+
+
+      (context "/stripe" []
+        :tags ["Stripe"]
+
+        (POST "/checkout" []
+          :summary "Creates a checkout session")))))
 

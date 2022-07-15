@@ -1,9 +1,10 @@
-(ns tfa-example.api_impl
+(ns tfa-example.api-impl
   (:require [ring.util.http-response :as http]
             [ring.util.codec]
             [clojure.tools.logging]
             [clojure.string]
             [buddy.hashers]
+            [tfa-example.utils :as utils]
             [tfa-example.config :as config]
             [tfa-example.emails :as emails]
             [tfa-example.redis :as redis]
@@ -65,8 +66,12 @@
         (error-response "Verification is failed!" {:email email :token token})
 
         :else
-        (do (db/save-new-user (:name found) email (:pass_hash found) (:totp_secret found))
-            (success-response "Registration is completed." {:email email}))))))
+        (let [user-id (:b64u (utils/random-uuid))]
+          (db/save-new-user user-id (:name found) email (:pass_hash found) (:totp_secret found))
+          (redis/delete-token email)
+          (success-response "Registration is completed." {:id user-id
+                                                          :full_name (:name found)
+                                                          :email email}))))))
 
 (defn- check-password? [user-data password]
   (buddy.hashers/check password (:password_hash user-data)))
@@ -138,8 +143,26 @@
         (error-response "Invalid auth code!")
 
         :else
-        (success-response "Login is successful" (select-keys user-info [:full_name :email]))))))
+        (success-response "Login is successful" (select-keys user-info [:id :full_name :email]))))))
 
+
+(defn- assoc-session-info [result])
+
+(defn- clear-session-info [result])
+
+(defn login-session [email password auth-code]
+  (do-in-try-catch
+    (let [verification-result (verify-login email password auth-code)]
+      (if (= "success" (get-in verification-result [:body :type]))
+        (assoc-session-info verification-result)
+        (clear-session-info verification-result)))))
+
+(defn check-session [userinfo]
+  (do-in-try-catch
+    (success-response (if (some? userinfo)
+                        "Session exists"
+                        "No session exists")
+                      userinfo)))
 
 
 (defn get-config []
