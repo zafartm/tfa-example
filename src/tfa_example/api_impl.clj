@@ -145,6 +145,13 @@
                       userinfo)))
 
 
+(defn print-debug-info [request]
+  (do-in-try-catch
+    (success-response {:request_params (:params request)
+                       :request_headers (:headers request)
+                       :server_session (:session request)})))
+
+
 (defn get-config []
   (do-in-try-catch
     (success-response "Configurations" (config/list-all))))

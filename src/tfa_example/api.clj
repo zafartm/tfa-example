@@ -140,31 +140,37 @@
 
       (context "/stripe" []
         :tags ["Stripe"]
-        :auth-rules is-logged-in?
 
         (GET "/list-prices" []
           :summary "Lists available prices with ids"
+          :auth-rules is-logged-in?
           (stripe-api-impl/list-prices))
 
         (POST "/subscribe-request" []
           :summary "Creates a checkout session"
           :form-params [selected_price :- (describe s/Str "Selected price id")]
+          :auth-rules is-logged-in?
           :current-user userinfo
           (stripe-api-impl/create-checkout-session (:id userinfo) selected_price))
 
-        (GET "/subscribe-success" []
-          :summary "Return url for checkout session")
+        (GET "/subscribe-success" request
+          :summary "Return url for checkout session"
+          (api-impl/print-debug-info request))
 
-        (GET "/subscribe-cancel" []
-          :summary "Return url for checkout session")
+        (GET "/subscribe-cancel" request
+          :summary "Return url for checkout session"
+          (api-impl/print-debug-info request))
 
         (POST "/portal" []
           :summary "Created a billing portal session"
+          :auth-rules is-logged-in?
           :current-user userinfo
           (stripe-api-impl/create-portal-session (:id userinfo)))
 
-        (GET "/portal-return" []
-          :summary "Return url from billing portal")))))
+        (GET "/portal-return" request
+          :summary "Return url from billing portal"
+          (api-impl/print-debug-info request))))))
+
 
 
 
