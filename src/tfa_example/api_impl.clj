@@ -1,5 +1,5 @@
 (ns tfa-example.api-impl
-  (:require [ring.util.http-response :as http]
+  (:require [tfa-example.api-impl-helper :refer :all]
             [ring.util.codec]
             [clojure.tools.logging]
             [clojure.string]
@@ -13,34 +13,6 @@
             [one-time.qrgen :as qrgen])
   (:import (java.io ByteArrayOutputStream)))
 
-
-(defn- success-response [message & [data]]
-  {:pre [(or (nil? data) (map? data))]}
-  (if (some? data)
-    (http/ok {:type    "success"
-              :message message
-              :data    data})
-    (http/ok {:type    "success"
-              :message message})))
-
-
-(defn- error-response [message & [data]]
-  {:pre [(or (nil? data) (map? data))]}
-  (if (some? data)
-    (http/ok {:type    "error"
-              :message message
-              :data    data})
-    (http/ok {:type    "error"
-              :message message})))
-
-
-(defmacro ^:private do-in-try-catch [& body]
-  `(try
-     (do ~@body)
-     (catch Throwable ex#
-       (clojure.tools.logging/warn ex#)
-       (http/ok {:type    "exception"
-                 :message (.getMessage ex#)}))))
 
 
 (defn register [name email password]

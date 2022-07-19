@@ -5,7 +5,9 @@
             [buddy.auth :refer [authenticated?]]
             [buddy.auth.accessrules :refer [restrict]]
             [schema.core :as s]
-            [tfa-example.api-impl :as api-impl]))
+            [tfa-example.api-impl :as api-impl]
+            [tfa-example.stripe-api-impl :as stripe-api-impl]
+            [tfa-example.stripe-events :as stripe-events]))
 
 
 (defmethod restructure-param :current-request
@@ -60,7 +62,7 @@
              :tags [{:name "api", :description "APIs"}]}}}
 
     (context "/api" []
-      :tags ["api"]
+      :tags ["Core API"]
 
       (POST "/register" []
         :return Result
@@ -123,6 +125,47 @@
       (GET "/config" []
         :return Result
         :summary "Returns list of configurations (env, conf, system.properties etc)"
-        (api-impl/get-config)))))
+        :auth-rules is-logged-in?
+        :current-request req
+        (clojure.pprint/pprint req)
+        (api-impl/get-config))
+
+      (POST "/stripe-webhook" request
+        :summary "Webhook end point"
+        :coercion nil
+        (do
+          ;(clojure.pprint/pprint (slurp (:body request)))
+          (stripe-events/record-stripe-event (slurp (:body request)))
+          (ok {:message "Event receipt is acknowledged."})))
+
+      (context "/stripe" []
+        :tags ["Stripe"]
+        :auth-rules is-logged-in?
+
+        (GET "/list-prices" []
+          :summary "Lists available prices with ids"
+          (stripe-api-impl/list-prices))
+
+        (POST "/subscribe-request" []
+          :summary "Creates a checkout session"
+          :form-params [selected_price :- (describe s/Str "Selected price id")]
+          :current-user userinfo
+          (stripe-api-impl/create-checkout-session (:id userinfo) selected_price))
+
+        (GET "/subscribe-success" []
+          :summary "Return url for checkout session")
+
+        (GET "/subscribe-cancel" []
+          :summary "Return url for checkout session")
+
+        (POST "/billing-portal" []
+          :summary "Created a billing portal session")
+
+        (GET "/billing-portal-return" []
+          :summary "Return url from billing portal")))))
+
+
+
+
 
 

@@ -4,4 +4,6 @@
                 :from_email      "noreply@tfa.example"
                 :from_name       "2FA Example Mailer"}
  :stripe       {:secret-key      ""
-                :publishable-key ""}}
+                :publishable-key ""
+                :prices          [{:name "Pronto Basic - monthly" :price 199.0 :price-id ""}
+                                  {:name "Pronto Plus - monthly" :price 899.0 :price-id ""}]}}

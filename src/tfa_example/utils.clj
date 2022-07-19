@@ -2,7 +2,8 @@
   (:require [buddy.core.codecs]
             [buddy.core.bytes]
             [clojure.data.json]
-            [clojure.string])
+            [clojure.string]
+            [clojure.stacktrace])
   (:import (java.nio ByteBuffer)
            (java.util UUID)))
 
@@ -41,3 +42,10 @@
   [json-str]
   (when (not (clojure.string/blank? json-str))
     (clojure.data.json/read-str json-str :key-fn clojure.core/keyword)))
+
+
+(defn ex-cause-trace [^Throwable ex]
+  (with-out-str
+    (-> ex
+        (clojure.stacktrace/root-cause)
+        (clojure.stacktrace/print-stack-trace))))

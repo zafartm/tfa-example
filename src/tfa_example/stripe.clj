@@ -4,8 +4,9 @@
             [clojure.tools.logging])
 
   (:import (com.stripe Stripe)
-           (com.stripe.model StripeObject Price Product)
-           (com.stripe.exception StripeException)))
+           (com.stripe.model StripeObject Price Product Event)
+           (com.stripe.exception StripeException)
+           (com.stripe.model.checkout Session)))
 
 (defn- secret-key []
   (tfa-example.config/get-prop [:stripe :secret-key]))
@@ -37,8 +38,9 @@
   `(try
      ~@body
      (catch StripeException stripe-ex#
-       (clojure.tools.logging/warn "Stripe error!" (to-clojure (.getStripeError stripe-ex#)))
-       (throw (ex-info (.getUserMessage stripe-ex#) {})))
+       (let [stripe-err# (to-clojure (.getStripeError stripe-ex#))]
+         (clojure.tools.logging/warn "Stripe error!" stripe-err#)
+         (throw (ex-info (.getUserMessage stripe-ex#) stripe-err#))))
      (catch Throwable ex#
        (throw ex#))))
 
@@ -56,4 +58,36 @@
     (to-clojure
       (-> (Price/list {"product" product-id})
           (.getData)))))
+
+(defn get-price-data [price-id]
+  (with-stripe-ex-logging
+    (init-stripe)
+    (to-clojure
+      (Price/retrieve price-id))))
+
+(defn get-event-data [event-id]
+  (with-stripe-ex-logging
+    (init-stripe)
+    (to-clojure
+      (Event/retrieve event-id))))
+
+
+(defn create-checkout-session [current-user-id customer-id customer-email success-url cancel-url price-id]
+  (with-stripe-ex-logging
+    (init-stripe)
+    (to-clojure
+      (let [parameters {"client_reference_id"  current-user-id
+                        "line_items"           [{"price"    price-id "quantity" 1}]
+                        "payment_method_types" ["card"]
+                        "mode"                 "subscription"
+                        ;"subscription_data"    (if (pos? trial-period-days)
+                        ;                         {"trial_period_days" trial-period-days}
+                        ;                         {"trial_from_plan" false})
+                        "success_url"          success-url
+                        "cancel_url"           cancel-url}]
+        (com.stripe.model.checkout.Session/create
+          (if (some? customer-id)
+            (assoc parameters "customer" customer-id)
+            (assoc parameters "customer_email" customer-email)))))))
+
 
