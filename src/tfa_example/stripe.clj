@@ -5,8 +5,7 @@
 
   (:import (com.stripe Stripe)
            (com.stripe.model StripeObject Price Product Event)
-           (com.stripe.exception StripeException)
-           (com.stripe.model.checkout Session)))
+           (com.stripe.exception StripeException)))
 
 (defn- secret-key []
   (tfa-example.config/get-prop [:stripe :secret-key]))
@@ -91,3 +90,9 @@
             (assoc parameters "customer_email" customer-email)))))))
 
 
+(defn create-portal-session [customer-id return-url]
+  (with-stripe-ex-logging
+    (init-stripe)
+    (to-clojure
+      (com.stripe.model.billingportal.Session/create {"customer" customer-id
+                                                      "return_url" return-url}))))

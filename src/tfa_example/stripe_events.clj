@@ -8,7 +8,11 @@
 
 
 (defn- process-checkout-session-completed [event-data]
-  (clojure.pprint/pprint event-data))
+  (clojure.pprint/pprint event-data)
+  (let [user-id (get-in event-data [:data :object :client_reference_id])
+        customer-id (get-in event-data [:data :object :customer])
+        subscription-id (get-in event-data [:data :object :subscription])]
+    (db/save-customer-id user-id customer-id)))
 
 (defn- process-payment-succeeded-stripe [event-data]
   (clojure.pprint/pprint event-data))
@@ -45,4 +49,8 @@
       (catch SQLIntegrityConstraintViolationException ex
         (logging/warn (.getMessage (clojure.stacktrace/root-cause ex)))))
     (logging/warn "Stripe event is received without any id!" event-data)))
+
+
+(defn reprocess-event [event-id]
+  (verify-and-process-event event-id))
 

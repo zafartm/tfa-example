@@ -158,10 +158,12 @@
         (GET "/subscribe-cancel" []
           :summary "Return url for checkout session")
 
-        (POST "/billing-portal" []
-          :summary "Created a billing portal session")
+        (POST "/portal" []
+          :summary "Created a billing portal session"
+          :current-user userinfo
+          (stripe-api-impl/create-portal-session (:id userinfo)))
 
-        (GET "/billing-portal-return" []
+        (GET "/portal-return" []
           :summary "Return url from billing portal")))))
 
 

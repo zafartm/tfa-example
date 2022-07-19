@@ -50,6 +50,14 @@
     (jdbc/update! conn :users {:is_tfa_enabled true} ["email=?" email])))
 
 
+(defn save-customer-id [user-id customer-id]
+  (jdbc/with-db-connection
+    [conn {:datasource @datasource}]
+    (jdbc/update! conn :users
+                  {:stripe_customer_id customer-id}
+                  ["id = ?" user-id])))
+
+
 ;; =================================================
 ;; =================================================
 

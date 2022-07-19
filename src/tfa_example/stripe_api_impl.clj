@@ -29,3 +29,12 @@
                                                        price-id)]
       (success-response "Checkout session is created" session-data))))
 
+
+(defn create-portal-session [current-user-id]
+  (do-in-try-catch
+    (if-some [customer-id (:stripe_customer_id (db/find-by-id current-user-id))]
+      (let [return-url "http://localhost:3001/api/stripe/portal-return"
+            session-data (stripe/create-portal-session customer-id return-url)]
+        (success-response "Portal session is created" session-data))
+      (error-response "Portal session cannot be created when customer_id is missing for user."))))
+
