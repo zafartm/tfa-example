@@ -26,7 +26,10 @@
                                                        customer-email
                                                        success-url
                                                        cancel-url
-                                                       price-id)]
+                                                       price-id
+                                                       1
+                                                       nil)]
+
       (success-response "Checkout session is created" session-data))))
 
 
